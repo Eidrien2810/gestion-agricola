@@ -110,3 +110,6 @@ form button {
   text-align: center;
   font-size: 1.2em;
 }
+button, .pointer{
+  cursor: pointer;
+}
