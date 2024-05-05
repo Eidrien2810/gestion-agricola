@@ -13,7 +13,7 @@ const usuarios=[
     },
     {
         id:3,
-        username:"informatica",
+        username:"6to de informatica",
         email:'informatica@test.com',
         password:'ipcas123'
     },
