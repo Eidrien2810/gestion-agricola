@@ -2,15 +2,34 @@ const d = document
 const $ = (identifier) => d.querySelector(identifier)
 
 class InventoryItem {
-  constructor(id, nombre, categoria, marca, cantidad, stock) {
+  constructor(id, nombre, categoria, marca, cantidad, stock,userId) {
     this.id = id
     this.nombre = nombre
     this.categoria = categoria
     this.marca = marca
     this.cantidad = cantidad
     this.stock = stock
+    this.userId = userId
   }
 }
+
+//busca el inventario del usuario
+let localInventory = JSON.parse(window.sessionStorage.getItem("inventory"))||[];
+localInventory = localInventory.map(obj=>{
+  if(typeof obj=== 'object')return Object.values(obj)
+  return obj
+})
+window.sessionStorage.setItem('inventory',JSON.stringify(localInventory))
+
+console.log(localInventory)
+
+//reseterar el local inventory
+//window.sessionStorage.removeItem("inventory")
+
+
+//declara cual usuario es que esta colectado y sino hay usuario va para el login aunque se cambiara para hacer un auth
+const userId = window.sessionStorage.getItem("userId")
+if(userId===null) window.location.replace("../login/login.html")
 
 const $modalBox = $('.modal-box')
 const $modalForm = $('.modal-form')
@@ -18,12 +37,23 @@ const $tbody = d.querySelector('tbody')
 let modalMode = 'insert'
 let appMode = 'index'
 let currentRow = null
-let inventory = []
+
+//filtra el inventario de respectivo usuario
+let inventory = localInventory.filter(element=>element[6]==userId)
+
+
 const searchBar = document.querySelector('.search-bar');
 searchBar.addEventListener('input', () => {
   const searchText = searchBar.value;
   filterRowsByNombre(searchText);
 })
+
+
+//cargar la tabla desde el principio
+reloadTable()
+closeModal()
+isDataEmpty() 
+
 
 d.addEventListener('DOMContentLoaded', e => resetInputs())
 
@@ -69,7 +99,16 @@ function closeModal(){
 function insertData(){
   if (areInputsValid()) {
     const trList = Array.from($modalForm.querySelectorAll('input')).map(el => el.value)
+
+    // coloca el user id 
+    trList.push(userId)
+
     inventory.push(new InventoryItem(...trList))
+
+    //guarda la data local
+    localInventory.push([...trList])
+
+    window.sessionStorage.setItem("inventory",JSON.stringify(localInventory))
     reloadTable()
     closeModal()
     isDataEmpty()
@@ -154,6 +193,14 @@ function deleteData(res){
     const id = currentRow.querySelector('.td--id').textContent
     const newInventory = inventory.filter(obj => obj.id != id)
     inventory = newInventory
+    console.log(inventory)
+    // que tambien se borre del inventario local
+    localInventory= localInventory.filter(obj=>obj[6]!==userId)
+
+    localInventory.push(...Object.values(inventory))
+
+    window.sessionStorage.setItem("inventory",JSON.stringify(localInventory))
+
     reloadTable()
   }
 }
@@ -170,12 +217,14 @@ function areInputsValid(){
   if (modalMode == 'update'){
     const lastId = currentRow.querySelector('.td--id').textContent
     const newInventory = inventory.filter(obj => obj.id !== lastId)
-    if (newInventory.some(obj => obj.id === id)){
+
+    //filtra que si el id y el usuario es el mismo que lo ponga como invalido
+    if (newInventory.some(obj => obj.id === id && obj.userId===userId)){
       alert('id repetido')
       return false
     }
   } else {
-    if (inventory.some(obj => obj.id == id)) {
+    if (inventory.some(obj => obj.id == id && obj.userId===userId)) {
       alert('id repetido')
       return false
     }
@@ -206,4 +255,10 @@ function filterRowsByNombre(searchText) {
       row.style.display = 'none';
     }
   });
+}
+
+
+function logOut (){
+  window.sessionStorage.removeItem("userId")
+  window.location.replace("../login/login.html")
 }

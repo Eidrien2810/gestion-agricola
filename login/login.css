@@ -1,0 +1,52 @@
+html {
+    box-sizing: border-box;
+    font-size: 16px;
+    scroll-behavior: smooth;
+  }
+  *,
+  *::after,
+  *::before {
+    box-sizing: inherit;
+    margin: 0;
+    padding: 0;
+  }
+  body {
+    font-family: Arial, sans-serif;
+    background-color: #f2f2f2; /* Cambia al color de fondo deseado */
+  }
+  .login-container {
+    background-color: #4caf50; /* Color de fondo del encabezado */
+    color: white;
+    padding: 10px;
+    text-align: center;
+  }
+  form {
+    margin: 50px auto; /* Centra el formulario */
+    max-width: 300px; /* Ajusta el ancho del formulario según sea necesario */
+    padding: 20px;
+    background-color: white; /* Color de fondo del formulario */
+    border-radius: 8px;
+    box-shadow: 0 0 10px rgba(0, 0, 0, 0.1); /* Sombra suave */
+  }
+  input[type="email"],
+  input[type="password"] {
+    width: 100%;
+    margin-bottom: 20px;
+    padding: 10px;
+    border: 1px solid #ddd;
+    border-radius: 4px;
+  }
+  input[type="submit"] {
+    width: 100%;
+    background-color: #4caf50; /* Color de fondo del botón */
+    color: white;
+    padding: 10px;
+    border: none;
+    border-radius: 4px;
+    cursor: pointer;
+    transition: background-color 0.3s ease; /* Transición suave */
+  }
+  input[type="submit"]:hover {
+    background-color: #45a049; /* Cambia el color al pasar el ratón */
+  }
+  
