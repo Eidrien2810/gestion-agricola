@@ -16,9 +16,10 @@ body {
 .header {
   background-color: #4caf50;
   padding: 10px;
-  color: white;
+  color: #fff;
   display: flex;
   justify-content: space-between;
+
 }
 .search-bar {
   float: right;
@@ -112,4 +113,18 @@ form button {
 }
 button, .pointer{
   cursor: pointer;
+} 
+
+.logo-container {
+  display: flex;
+  align-items: center;
+}
+
+.logo {
+  width: 60px;
+  margin-right: 10px; 
+}
+
+.header h1 {
+  font-size: 24px;
 }
