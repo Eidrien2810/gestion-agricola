@@ -1,0 +1,81 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="UTF-8">
+<title>Inventario de Locales</title>
+<link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <main>
+    <header class="header">
+      <h1>IPCAS</h1>
+      <input type="text" class="search-bar" placeholder="Buscar...">
+    </header>
+
+    <div class="div--add-btn">
+      <h2>Inventario de todos los locales</h2>
+      <button class="open-btn">Añadir inventario</button>
+    </div>
+    <article class="table">
+    <table>
+      <thead>
+        <tr>
+          <th>id</th>
+          <th>Nombre</th>
+          <th>Categoria</th>
+          <th>Marca</th>
+          <th>Cantidad</th>
+          <th>Stock</th>
+          <th>Cambio de stock</th>
+          <th>Opciones</th>
+        </tr>
+      </thead>
+        <tbody>
+          <!-- <tr>
+            <td class="td--id">1456</td>
+            <td class="td--nombre">Shampoo</td>
+            <td class="td--categoria">Cabello</td>
+            <td class="td--marca">Bellerina</td>
+            <td class="td--cantidad">1000 ml</td>
+            <td class="td--stock">13</td>
+            <td class="td--cambio-stock">
+              <button class="plus-btn">+</button>
+              <button class="minus-btn">-</button>
+            </td>
+            <td class="td--opciones">
+              <button class="edit-btn">Editar</button>
+              <button class="deactivate-btn">Desactivar</button>
+            </td>
+          </tr> -->
+        </tbody>
+      </table>
+      <div class="empty-table">
+        <p>No has insertado ninguna fila a esta tabla</p>
+      </div>
+      </article>
+    
+    <article class="modal-box hidden">
+      <div class="modal-info">
+        <button class="close-btn">x</button>
+        <form class="modal-form" action="">
+          <label for="input--id">Id</label>
+          <input type="number" id="input--id" required>
+          <label for="input-nombre">Nombre</label>
+          <input type="" id="input-nombre" required>
+          <label for="input--categoria">Categoria</label>
+          <input type="" id="input--categoria" required>
+          <label for="input--marca">Marca</label>
+          <input type="" id="input--marca" required>
+          <label for="input--cantidad">Cantidad</label>
+          <input type="" id="input--cantidad" required>
+          <label for="input--stock">Stock</label>
+          <input type="number" min="0" id="input--stock" required>
+          <button class="submit-btn">Enviar</button>
+        </form>
+      </div>
+    </article>
+  </main>
+
+<script src="./main.js"></script>
+</body>
+</html>
