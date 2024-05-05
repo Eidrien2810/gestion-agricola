@@ -130,6 +130,7 @@ function reloadTable(){
     const keys = Object.keys(obj)
     const $tr = document.createElement('tr')
     for (let j = 0; j < keys.length; j++) {
+      if(j===6)break
       const key = keys[j];
       const value = obj[key];
       const $td = document.createElement('td')
