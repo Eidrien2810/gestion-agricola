@@ -29,7 +29,7 @@ console.log(localInventory)
 
 //declara cual usuario es que esta colectado y sino hay usuario va para el login aunque se cambiara para hacer un auth
 const userId = window.sessionStorage.getItem("userId")
-if(userId===null) window.location.replace("../login/login.html")
+if(userId===null) window.location.replace("../index.html")
 
 const $modalBox = $('.modal-box')
 const $modalForm = $('.modal-form')
