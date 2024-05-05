@@ -170,9 +170,21 @@ function updateData(){
   if (areInputsValid()){
     const id = currentRow.querySelector('.td--id').textContent
     const trList = Array.from($modalForm.querySelectorAll('input')).map(el => el.value)
-    const index = inventory.findIndex(obj => obj.id == id)
+
+    //colocar el user que tiene el login
+    trList.push(userId)
+
+    //validar el objeto y el user correspondiente
+    const index = inventory.findIndex(obj =>Array.isArray? obj[0] == id && obj[6]==userId : obj.id == id && obj.userId==userId)
+    const localIndex= localInventory.findIndex(obj =>Array.isArray? obj[0] == id && obj[6]==userId : obj.id == id && obj.userId==userId)
+
     const obj = new InventoryItem(...trList)
     inventory[index] = obj
+
+    //hacer el cambio en el local inventory
+    localInventory[localIndex]= obj
+    window.sessionStorage.setItem("inventory",JSON.stringify(localInventory))
+
     reloadTable()
     closeModal()
   }
@@ -191,9 +203,11 @@ function openDeleteModal(e){
 function deleteData(res){
   if (res) {
     const id = currentRow.querySelector('.td--id').textContent
-    const newInventory = inventory.filter(obj => obj.id != id)
+
+    //valida el id y el user id
+    const newInventory = inventory.filter(obj =>Array.isArray(obj)? obj[0]!=id : obj.id != id)
     inventory = newInventory
-    console.log(inventory)
+
     // que tambien se borre del inventario local
     localInventory= localInventory.filter(obj=>obj[6]!==userId)
 
@@ -216,15 +230,15 @@ function areInputsValid(){
   const [id, nombre, categoria, marca, cantidad, stock] = Array.from($modalForm.querySelectorAll('input')).map(input => input.value)
   if (modalMode == 'update'){
     const lastId = currentRow.querySelector('.td--id').textContent
-    const newInventory = inventory.filter(obj => obj.id !== lastId)
+    const newInventory = inventory.filter(obj =>Array.isArray(obj)? obj[0] !== lastId : obj.id !== lastId)
 
     //filtra que si el id y el usuario es el mismo que lo ponga como invalido
-    if (newInventory.some(obj => obj.id === id && obj.userId===userId)){
+    if (newInventory.some(obj =>Array.isArray(obj)? obj[0] === id && obj[6]===userId : obj.id === id && obj.userId===userId)){
       alert('id repetido')
       return false
     }
   } else {
-    if (inventory.some(obj => obj.id == id && obj.userId===userId)) {
+    if (inventory.some(obj =>Array.isArray(obj)? obj[0] === id && obj[6]===userId : obj.id === id && obj.userId===userId)) {
       alert('id repetido')
       return false
     }
