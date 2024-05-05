@@ -147,13 +147,33 @@ function reloadTable(){
 }
 function increaseStock(e){
   const $stock = Array.from(e.target.parentElement.parentElement.children).find(td => td.matches('.td--stock'))
+
+  //tomar el id del item a hacer incremento de stock y hacer ese cambio en el local inventory
+  const  $id = Array.from(e.target.parentElement.parentElement.children).find(td => td.matches('.td--id')).textContent
+  localInventory.map(obj=>{
+    if(obj[0]===$id && obj[6]===userId) return obj[5]= Number($stock.textContent) + 1
+    return obj
+  })
+  window.sessionStorage.setItem('inventory',JSON.stringify(localInventory))
+
   $stock.textContent = Number($stock.textContent) + 1
   stockStatus()
 }
 function decreaseStock(e){
   const $stock = Array.from(e.target.parentElement.parentElement.children).find(td => td.matches('.td--stock'))
 
+  //declarar el id del item
+  const  $id = Array.from(e.target.parentElement.parentElement.children).find(td => td.matches('.td--id')).textContent
+
   if (Number($stock.textContent) > 0){
+  
+  //hacer cambio en el local inventory del decremento
+  localInventory.map(obj=>{
+    if(obj[0]===$id && obj[6]===userId) return obj[5]= Number($stock.textContent) - 1
+    return obj
+  })
+  window.sessionStorage.setItem('inventory',JSON.stringify(localInventory))
+
     $stock.textContent = Number($stock.textContent) - 1
   }
   stockStatus()
