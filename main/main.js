@@ -56,7 +56,7 @@ onAuthStateChanged(auth,async(user)=>{
       console.log(error)
     }
   }else{
-      window.location.replace("./login/login.html")
+      window.location.replace("../login/login.html")
   }
 })
 
