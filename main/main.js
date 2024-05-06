@@ -2,12 +2,12 @@ const d = document
 const $ = (identifier) => d.querySelector(identifier)
 
 class InventoryItem {
-  constructor(id, nombre, categoria, marca, cantidad, stock,userId) {
+  constructor(id, nombre, categoria, marca, monto, stock,userId) {
     this.id = id
     this.nombre = nombre
     this.categoria = categoria
     this.marca = marca
-    this.cantidad = cantidad
+    this.monto = monto
     this.stock = stock
     this.userId = userId
   }
@@ -35,7 +35,6 @@ const $modalBox = $('.modal-box')
 const $modalForm = $('.modal-form')
 const $tbody = d.querySelector('tbody')
 let modalMode = 'insert'
-let appMode = 'index'
 let currentRow = null
 
 //filtra el inventario de respectivo usuario
@@ -99,12 +98,13 @@ function closeModal(){
 function insertData(){
   if (areInputsValid()) {
     const trList = Array.from($modalForm.querySelectorAll('input')).map(el => el.value)
+    const currency = d.querySelector('.select--monto').value
+    trList[4] = new Intl.NumberFormat('es-DO', { style: 'currency', currency }).format(trList[4])
 
     // coloca el user id 
     trList.push(userId)
 
     inventory.push(new InventoryItem(...trList))
-
     //guarda la data local
     localInventory.push([...trList])
 
@@ -116,15 +116,11 @@ function insertData(){
 }
 function reloadTable(){
   $tbody.innerHTML = ''
-  const $stockTd = `<td>
-  <button class="plus-btn">+</button>
-  <button class="minus-btn">-</button>
-</td>`
   const $optionsTd = `<td>
   <button class="edit-btn">Editar</button>
-  <button class="deactivate-btn">Desactivar</button>
+  <button class="deactivate-btn">Eliminar</button>
 </td>`
-  const classList = ['td--id', 'td--nombre', 'td--categoria', 'td--marca', 'td--cantidad', 'td--stock', 'td--cambio-stock', 'td--opciones']
+  const classList = ['td--id', 'td--nombre', 'td--categoria', 'td--marca', 'td--monto', 'td--stock', 'td--opciones']
   for (let i = 0; i < inventory.length; i++) {
     const obj = inventory[i]
     const keys = Object.keys(obj)
@@ -138,7 +134,6 @@ function reloadTable(){
       $td.classList.add(classList[j])
       $tr.append($td)
     }
-    $tr.innerHTML += $stockTd
     $tr.innerHTML += $optionsTd
     currentRow = $tr
     $tbody.append($tr)
@@ -181,8 +176,12 @@ function decreaseStock(e){
 function openEditModal(e){
   currentRow = e.target.parentElement.parentElement
   const trList = Array.from(currentRow.children).slice(0, 6).map(td => td.textContent)
-
+  // console.log(trList)
   Array.from($modalForm.querySelectorAll('input')).forEach((input, i) => {
+    if (i == 4){
+      input.value = Number(trList[i].slice(3))
+      return
+    }
     input.value = trList[i]
   })
   openModal()
@@ -190,7 +189,13 @@ function openEditModal(e){
 function updateData(){
   if (areInputsValid()){
     const id = currentRow.querySelector('.td--id').textContent
-    const trList = Array.from($modalForm.querySelectorAll('input')).map(el => el.value)
+    const trList = Array.from($modalForm.querySelectorAll('input')).map((el, i) => {
+      if (i == 4) {
+        const currency = d.querySelector('.select--monto').value
+        return new Intl.NumberFormat('es-DO', { style: 'currency', currency }).format(el.value)
+      }
+      return el.value
+    })
 
     //colocar el user que tiene el login
     trList.push(userId)
@@ -249,7 +254,12 @@ function isDataEmpty(){
   }
 }
 function areInputsValid(){
-  const [id, nombre, categoria, marca, cantidad, stock] = Array.from($modalForm.querySelectorAll('input')).map(input => input.value)
+  const [id, nombre, categoria, marca, monto, stock] = Array.from($modalForm.querySelectorAll('input')).map(input => input.value)
+  const currency = $modalForm.querySelector('select').value
+  if (currency == 'Divisa'){
+    alert('Selecciona una divisa')
+    return false
+  }
   if (modalMode == 'update'){
     const lastId = currentRow.querySelector('.td--id').textContent
     const newInventory = inventory.filter(obj =>Array.isArray(obj)? obj[0] !== lastId : obj.id !== lastId)

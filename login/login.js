@@ -7,10 +7,7 @@ document.getElementById("formSubmit").addEventListener('click',function(e){
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
 
-    const validateUser = users.find(user=>{
-        if(user.email==email && user.password==password)return true
-        return false
-    })
+    const validateUser = users.find(user => user.email == email && user.password == password)
 
     if(validateUser){
         const user = users.find(user=>user.email==email && user.password==password)

@@ -34,9 +34,8 @@
           <th>Nombre</th>
           <th>Categoria</th>
           <th>Marca</th>
-          <th>Cantidad</th>
+          <th>Monto</th>
           <th>Stock</th>
-          <th>Cambio de stock</th>
           <th>Opciones</th>
         </tr>
       </thead>
@@ -76,8 +75,15 @@
           <input type="" id="input--categoria" required>
           <label for="input--marca">Marca</label>
           <input type="" id="input--marca" required>
-          <label for="input--cantidad">Cantidad</label>
-          <input type="" id="input--cantidad" required>
+          <label for="input--monto">Monto</label>
+          <div>
+            <input type="number" id="input--monto" required>
+          <select class="select--monto">
+            <option value="Divisa" selected disabled>Divisa</option>
+            <option value="DOP">DOP</option>
+            <option value="USD">USD</option>
+          </select>
+          </div>
           <label for="input--stock">Stock</label>
           <input type="number" min="0" id="input--stock" required>
           <button class="submit-btn">Enviar</button>
