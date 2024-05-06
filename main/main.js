@@ -196,10 +196,11 @@ function updateData(){
     trList.push(userId)
 
     //validar el objeto y el user correspondiente
-    const index = inventory.findIndex(obj =>Array.isArray? obj[0] == id && obj[6]==userId : obj.id == id && obj.userId==userId)
-    const localIndex= localInventory.findIndex(obj =>Array.isArray? obj[0] == id && obj[6]==userId : obj.id == id && obj.userId==userId)
+    const index = inventory.findIndex(obj =>Array.isArray(obj)? obj[0] == id && obj[6]==userId : obj.id == id && obj.userId==userId)
+    const localIndex= localInventory.findIndex(obj =>Array.isArray(obj)? obj[0] == id && obj[6]==userId : obj.id == id && obj.userId==userId)
 
     const obj = new InventoryItem(...trList)
+    console.log(obj)
     inventory[index] = obj
 
     //hacer el cambio en el local inventory
