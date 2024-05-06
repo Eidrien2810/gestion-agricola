@@ -98,8 +98,6 @@ function closeModal(){
 function insertData(){
   if (areInputsValid()) {
     const trList = Array.from($modalForm.querySelectorAll('input')).map(el => el.value)
-    const currency = d.querySelector('.select--monto').value
-    trList[4] = new Intl.NumberFormat('es-DO', { style: 'currency', currency }).format(trList[4])
 
     // coloca el user id 
     trList.push(userId)
@@ -130,7 +128,11 @@ function reloadTable(){
       const key = keys[j];
       const value = obj[key];
       const $td = document.createElement('td')
-      $td.textContent = value
+      if (j === 4) {
+        $td.textContent = new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(value)
+      } else {
+        $td.textContent = value
+      }
       $td.classList.add(classList[j])
       $tr.append($td)
     }
@@ -189,13 +191,7 @@ function openEditModal(e){
 function updateData(){
   if (areInputsValid()){
     const id = currentRow.querySelector('.td--id').textContent
-    const trList = Array.from($modalForm.querySelectorAll('input')).map((el, i) => {
-      if (i == 4) {
-        const currency = d.querySelector('.select--monto').value
-        return new Intl.NumberFormat('es-DO', { style: 'currency', currency }).format(el.value)
-      }
-      return el.value
-    })
+    const trList = Array.from($modalForm.querySelectorAll('input')).map((el, i) => el.value)
 
     //colocar el user que tiene el login
     trList.push(userId)
@@ -255,11 +251,6 @@ function isDataEmpty(){
 }
 function areInputsValid(){
   const [id, nombre, categoria, marca, monto, stock] = Array.from($modalForm.querySelectorAll('input')).map(input => input.value)
-  const currency = $modalForm.querySelector('select').value
-  if (currency == 'Divisa'){
-    alert('Selecciona una divisa')
-    return false
-  }
   if (modalMode == 'update'){
     const lastId = currentRow.querySelector('.td--id').textContent
     const newInventory = inventory.filter(obj =>Array.isArray(obj)? obj[0] !== lastId : obj.id !== lastId)
