@@ -1,8 +1,13 @@
+import { onAuthStateChanged } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js"
+import { getDocs, doc, deleteDoc, setDoc, addDoc, collection } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-firestore.js"
+import { signOut } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js"
+import { auth, db } from "../firebase.js";
+
 const d = document
 const $ = (identifier) => d.querySelector(identifier)
 
 class InventoryItem {
-  constructor(id, nombre, categoria, marca, monto, stock,userId) {
+  constructor(id, nombre, categoria, marca, monto, stock,userId,docId) {
     this.id = id
     this.nombre = nombre
     this.categoria = categoria
@@ -10,26 +15,50 @@ class InventoryItem {
     this.monto = monto
     this.stock = stock
     this.userId = userId
+    this.docId= docId
   }
 }
-
-//busca el inventario del usuario
-let localInventory = JSON.parse(window.sessionStorage.getItem("inventory"))||[];
-localInventory = localInventory.map(obj=>{
-  if(typeof obj=== 'object')return Object.values(obj)
-  return obj
-})
-window.sessionStorage.setItem('inventory',JSON.stringify(localInventory))
-
-console.log(localInventory)
-
-//reseterar el local inventory
-//window.sessionStorage.removeItem("inventory")
-
-
 //declara cual usuario es que esta colectado y sino hay usuario va para el login aunque se cambiara para hacer un auth
-const userId = window.sessionStorage.getItem("userId")
-if(userId===null) window.location.replace("../index.html")
+let userId
+
+let inventory=[]
+onAuthStateChanged(auth,async(user)=>{
+  if(user){
+    userId=user.uid
+    const userDropbtn = document.getElementById("userDropBtn")
+    userDropbtn.innerHTML = user.email
+    try {
+      let allInv = await getDocs(collection(db, "Inventory"));
+      allInv = allInv.docs
+      if(allInv.length){
+        allInv.forEach(doc=>{
+          const docId=doc.id
+          let item=doc.data()
+          if(item.userId==userId){
+            const itemInv=[]
+             itemInv.push(item.id)
+             itemInv.push(item.nombre)
+             itemInv.push(item.categoria)
+             itemInv.push(item.marca)
+             itemInv.push(new Intl.NumberFormat('es-DO', { style: 'currency', currency:'DOP' }).format(item.monto))
+             itemInv.push(item.stock)
+             itemInv.push(item.userId)
+             itemInv.push(docId)
+             inventory.push(itemInv)
+          }
+        })
+      }
+      //cargar la tabla desde el principio
+      reloadTable()
+      closeModal()
+      isDataEmpty() 
+    } catch (error) {
+      console.log(error)
+    }
+  }else{
+      window.location.replace("./login/login.html")
+  }
+})
 
 const $modalBox = $('.modal-box')
 const $modalForm = $('.modal-form')
@@ -38,7 +67,7 @@ let modalMode = 'insert'
 let currentRow = null
 
 //filtra el inventario de respectivo usuario
-let inventory = localInventory.filter(element=>element[6]==userId)
+
 
 
 const searchBar = document.querySelector('.search-bar');
@@ -46,12 +75,6 @@ searchBar.addEventListener('input', () => {
   const searchText = searchBar.value;
   filterRowsByNombre(searchText);
 })
-
-
-//cargar la tabla desde el principio
-reloadTable()
-closeModal()
-isDataEmpty() 
 
 
 d.addEventListener('DOMContentLoaded', e => resetInputs())
@@ -95,20 +118,33 @@ function openModal(){
 function closeModal(){
   $modalBox.classList.add('hidden')
 }
-function insertData(){
+async function insertData(){
   if (areInputsValid()) {
     const trList = Array.from($modalForm.querySelectorAll('input')).map(el => el.value)
-    const currency = d.querySelector('.select--monto').value
-    trList[4] = new Intl.NumberFormat('es-DO', { style: 'currency', currency }).format(trList[4])
 
     // coloca el user id 
     trList.push(userId)
+    try {
+    //guarda la data en la base de datos
+    
+      await addDoc(collection(db,'Inventory'),{
+        id:trList[0],
+        nombre:trList[1],
+        categoria:trList[2],
+        marca:trList[3],
+        monto:Number(trList[4]),
+        stock:Number(trList[5]),
+        userId:trList[6],
+      })
+      .then((r)=>{
+        trList[4] = new Intl.NumberFormat('es-DO', { style: 'currency', currency:'DOP' }).format(trList[4])
+        trList[7]=r.id
+      inventory.push(new InventoryItem(...trList))
+      })
+    } catch (error) {
+      console.log(error)
+    }
 
-    inventory.push(new InventoryItem(...trList))
-    //guarda la data local
-    localInventory.push([...trList])
-
-    window.sessionStorage.setItem("inventory",JSON.stringify(localInventory))
     reloadTable()
     closeModal()
     isDataEmpty()
@@ -126,7 +162,7 @@ function reloadTable(){
     const keys = Object.keys(obj)
     const $tr = document.createElement('tr')
     for (let j = 0; j < keys.length; j++) {
-      if(j===6)break
+      if(j===6 || j===7)break
       const key = keys[j];
       const value = obj[key];
       const $td = document.createElement('td')
@@ -140,77 +176,54 @@ function reloadTable(){
     stockStatus()
   }
 }
-function increaseStock(e){
-  const $stock = Array.from(e.target.parentElement.parentElement.children).find(td => td.matches('.td--stock'))
 
-  //tomar el id del item a hacer incremento de stock y hacer ese cambio en el local inventory
-  const  $id = Array.from(e.target.parentElement.parentElement.children).find(td => td.matches('.td--id')).textContent
-  localInventory.map(obj=>{
-    if(obj[0]===$id && obj[6]===userId) return obj[5]= Number($stock.textContent) + 1
-    return obj
-  })
-  window.sessionStorage.setItem('inventory',JSON.stringify(localInventory))
 
-  $stock.textContent = Number($stock.textContent) + 1
-  stockStatus()
-}
-function decreaseStock(e){
-  const $stock = Array.from(e.target.parentElement.parentElement.children).find(td => td.matches('.td--stock'))
-
-  //declarar el id del item
-  const  $id = Array.from(e.target.parentElement.parentElement.children).find(td => td.matches('.td--id')).textContent
-
-  if (Number($stock.textContent) > 0){
-  
-  //hacer cambio en el local inventory del decremento
-  localInventory.map(obj=>{
-    if(obj[0]===$id && obj[6]===userId) return obj[5]= Number($stock.textContent) - 1
-    return obj
-  })
-  window.sessionStorage.setItem('inventory',JSON.stringify(localInventory))
-
-    $stock.textContent = Number($stock.textContent) - 1
-  }
-  stockStatus()
-}
 function openEditModal(e){
   currentRow = e.target.parentElement.parentElement
   const trList = Array.from(currentRow.children).slice(0, 6).map(td => td.textContent)
-  // console.log(trList)
   Array.from($modalForm.querySelectorAll('input')).forEach((input, i) => {
     if (i == 4){
-      input.value = Number(trList[i].slice(3))
+      let iMonto =trList[i].slice(3).split(',').join('')
+      input.value = Number(iMonto)
       return
     }
     input.value = trList[i]
   })
   openModal()
 }
-function updateData(){
+async function updateData(){
   if (areInputsValid()){
     const id = currentRow.querySelector('.td--id').textContent
-    const trList = Array.from($modalForm.querySelectorAll('input')).map((el, i) => {
-      if (i == 4) {
-        const currency = d.querySelector('.select--monto').value
-        return new Intl.NumberFormat('es-DO', { style: 'currency', currency }).format(el.value)
-      }
-      return el.value
-    })
+    const trList = Array.from($modalForm.querySelectorAll('input')).map(el => el.value)
 
     //colocar el user que tiene el login
     trList.push(userId)
 
     //validar el objeto y el user correspondiente
     const index = inventory.findIndex(obj =>Array.isArray(obj)? obj[0] == id && obj[6]==userId : obj.id == id && obj.userId==userId)
-    const localIndex= localInventory.findIndex(obj =>Array.isArray(obj)? obj[0] == id && obj[6]==userId : obj.id == id && obj.userId==userId)
+    const docId = inventory.find(obj =>Array.isArray(obj)? obj[0] == id && obj[6]==userId : obj.id == id && obj.userId==userId)[7]
 
+    trList.push(docId)
     const obj = new InventoryItem(...trList)
-    console.log(obj)
-    inventory[index] = obj
-
-    //hacer el cambio en el local inventory
-    localInventory[localIndex]= obj
-    window.sessionStorage.setItem("inventory",JSON.stringify(localInventory))
+    try {
+      //hacer el cambio en la base de datos
+      
+        await setDoc(doc(db,'Inventory',docId), {
+            id:obj.id,
+            nombre:obj.nombre,
+            categoria:obj.categoria,
+            marca:obj.marca,
+            monto:obj.monto,
+            stock:Number(obj.stock),
+            userId:obj.userId,
+        });
+        obj.monto = new Intl.NumberFormat('es-DO', { style: 'currency', currency:'DOP' }).format(obj.monto)
+        
+      inventory[index] = Object.values(obj)
+  
+    } catch (error) {
+      console.log(error)
+    }
 
     reloadTable()
     closeModal()
@@ -227,20 +240,24 @@ function openDeleteModal(e){
   const modalRes = confirm(`Deseas eliminar la fila id ${id}`)
   deleteData(modalRes)
 }
-function deleteData(res){
+async function deleteData(res){
   if (res) {
     const id = currentRow.querySelector('.td--id').textContent
 
     //valida el id y el user id
     const newInventory = inventory.filter(obj =>Array.isArray(obj)? obj[0]!=id : obj.id != id)
-    inventory = newInventory
+    
+    try {
+        //se borre en la base de datos
 
-    // que tambien se borre del inventario local
-    localInventory= localInventory.filter(obj=>obj[6]!==userId)
+        let newInv= inventory.filter(obj =>Array.isArray(obj)? obj[0]==id && obj[6]==userId: obj.id == id && obj.userId==userId)
+        newInv = Array.isArray(newInv)? newInv[0][7]:newInv[0].docId;
+        await deleteDoc(doc(db,'Inventory',newInv))
+        inventory = newInventory
+    } catch (error) {
+      console.log(error)
+    }
 
-    localInventory.push(...Object.values(inventory))
-
-    window.sessionStorage.setItem("inventory",JSON.stringify(localInventory))
 
     reloadTable()
   }
@@ -255,22 +272,21 @@ function isDataEmpty(){
 }
 function areInputsValid(){
   const [id, nombre, categoria, marca, monto, stock] = Array.from($modalForm.querySelectorAll('input')).map(input => input.value)
-  const currency = $modalForm.querySelector('select').value
-  if (currency == 'Divisa'){
-    alert('Selecciona una divisa')
-    return false
-  }
   if (modalMode == 'update'){
     const lastId = currentRow.querySelector('.td--id').textContent
     const newInventory = inventory.filter(obj =>Array.isArray(obj)? obj[0] !== lastId : obj.id !== lastId)
 
     //filtra que si el id y el usuario es el mismo que lo ponga como invalido
-    if (newInventory.some(obj =>Array.isArray(obj)? obj[0] === id && obj[6]===userId : obj.id === id && obj.userId===userId)){
+    if (newInventory.some(obj =>{
+      return Array.isArray(obj)? obj[0] === id && obj[6]===userId : obj.id === id && obj.userId===userId
+    })){
       alert('id repetido')
       return false
     }
   } else {
-    if (inventory.some(obj =>Array.isArray(obj)? obj[0] === id && obj[6]===userId : obj.id === id && obj.userId===userId)) {
+    if (inventory.some(obj =>{
+      return Array.isArray(obj)? obj[0] === id && obj[6]===userId : obj.id === id && obj.userId===userId
+    })) {
       alert('id repetido')
       return false
     }
@@ -303,21 +319,20 @@ function filterRowsByNombre(searchText) {
   });
 }
 
+//log out
+document.querySelector('.log-out').addEventListener('click',async()=>{
+  try {
+    await signOut(auth)
+    window.location.replace("../login/login.html")
+  } catch (error) {
+    console.log(error)
+  }
+})
 
-function logOut (){
-  window.sessionStorage.removeItem("userId")
-  window.location.replace("../login/login.html")
-}
-
-//colocar nombre de la usuario
-const userDropbtn = document.getElementById("userDropBtn")
-const user = JSON.parse(window.sessionStorage.getItem("users")).find(obj=>obj.id==userId)
-console.log(user)
-userDropbtn.innerHTML = user.username
-
-function userDropdown() {
+// abre el dropdown
+document.getElementById('userDropBtn').addEventListener('click',()=>{
   document.getElementById("myDropdown").classList.toggle("show");
-}
+})
 
 // Close the dropdown menu if the user clicks outside of it
 window.onclick = function(event) {

@@ -1,22 +1,23 @@
+import { signInWithEmailAndPassword } from "https://www.gstatic.com/firebasejs/9.10.0/firebase-auth.js"
+import { auth } from "../firebase.js";
 
-const users= JSON.parse(window.sessionStorage.getItem("users"))
-
-document.getElementById("formSubmit").addEventListener('click',function(e){
+const login = document.querySelector("#formSingIn")
+login.addEventListener('submit',async(e)=>{
     e.preventDefault();
 
     const email = document.getElementById("email").value.trim();
     const password = document.getElementById("password").value.trim();
-
-    const validateUser = users.find(user => user.email == email && user.password == password)
-
-    if(validateUser){
-        const user = users.find(user=>user.email==email && user.password==password)
-        console.log(user)
-        window.sessionStorage.setItem("userId",user.id)
+    console.log(email,password)
+    try {
+        const userAuth= await signInWithEmailAndPassword(auth,email,password);
         window.location.replace("../index.html")
-    }else{
-        alert("email o contraseña incorrecta")
-    }
-    
+    } catch (error) {
+        if (error.code === 'auth/invalid-login-credentials') {
+          alert("email o contraseña incorrecta")
+        }else {
+          alert("Algo salio mal")
+        }
+        login.reset()
+    }  
 })
 
