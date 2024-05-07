@@ -14,9 +14,9 @@
       <img src="img/Logo.png" alt="Logo de IPCAS" class="logo">
     </div>
     <div class="dropdown">
-      <h2 onclick="userDropdown()" id="userDropBtn" class="dropbtn"></h2>
+      <h2 id="userDropBtn" class="dropbtn"></h2>
         <div id="myDropdown" class="dropdown-content">
-          <p onclick="logOut()" class="log-out">Cerrar Sesión</p>
+          <p class="log-out">Cerrar Sesión</p>
         </div>
     </div>
   </header>
@@ -76,9 +76,7 @@
           <label for="input--marca">Marca</label>
           <input type="" id="input--marca" required>
           <label for="input--monto">Monto</label>
-          <div>
-            <input type="number" id="input--monto" required>
-          </div>
+          <input type="number" id="input--monto" required>
           <label for="input--stock">Stock</label>
           <input type="number" min="0" id="input--stock" required>
           <button class="submit-btn">Enviar</button>
@@ -87,6 +85,6 @@
     </article>
   </main>
 
-<script src="./main.js"></script>
+<script type="module" src="./main.js"></script>
 </body>
 </html>
