@@ -166,11 +166,7 @@ function reloadTable(){
       const key = keys[j];
       const value = obj[key];
       const $td = document.createElement('td')
-      if (j === 4) {
-        $td.textContent = new Intl.NumberFormat('es-DO', { style: 'currency', currency: 'DOP' }).format(value)
-      } else {
-        $td.textContent = value
-      }
+      $td.textContent = value
       $td.classList.add(classList[j])
       $tr.append($td)
     }
