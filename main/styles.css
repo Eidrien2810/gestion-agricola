@@ -22,6 +22,14 @@ html {
 body {
   font-family: Arial, sans-serif;
 }
+main {
+  width: 100%;
+  min-height: 100vh;
+  display: grid;
+  grid-template-columns: 1fr;
+  grid-template-rows: auto;
+}
+
 .header {
   background-color: #4caf50;
   padding: 10px;
@@ -37,11 +45,18 @@ body {
 }
 .search-bar {
   float: right;
+  min-width: none;
+  height: fit-content;
+  padding: 1em;
+}
+.open-btn {
+  height: fit-content;
+  padding: 1em;
 }
 table {
   width: 100%;
   border-collapse: collapse;
-  overflow-x: scroll;
+  overflow-x: 'auto';
 }
 th,
 td {
@@ -85,6 +100,7 @@ th {
 }
 .table {
   overflow-x: scroll;
+  height: fit-content;
 }
 .modal-info {
   position: relative;
@@ -179,6 +195,7 @@ form button {
 .div--add-btn {
   display: -webkit-box;
   display: -ms-flexbox;
+  height: fit-content;
   display: flex;
   padding: 1em;
   -webkit-box-pack: justify;
@@ -326,8 +343,8 @@ span.hamburger {
   width: 100%;
   background-color: #3b8b3d;
   color: white;
-  margin-top: 2em;
   padding: 2em;
+  justify-self: flex-end;
 }
 @media screen and (max-width: 700px) {
   .div--add-btn {
