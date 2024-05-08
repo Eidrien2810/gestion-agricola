@@ -27,6 +27,7 @@ onAuthStateChanged(auth,async(user)=>{
     userId=user.uid
     const userDropbtn = document.getElementById("userDropBtn")
     userDropbtn.innerHTML = user.email
+    d.querySelector('.user-right-bar').innerHTML = user.email
     try {
       let allInv = await getDocs(collection(db, "Inventory"));
       allInv = allInv.docs
@@ -88,21 +89,23 @@ d.addEventListener('click', (e) => {
     openModal()
     resetInputs()
   }
-  if (e.target.matches('.plus-btn')){
-    increaseStock(e)
-  }
-  if (e.target.matches('.minus-btn')){
-    decreaseStock(e)
-  }
   if (e.target.matches('.edit-btn')){
     modalMode = 'update'
     openEditModal(e)
-
   }
   if (e.target.matches('.deactivate-btn')){
     openDeleteModal(e)
     isDataEmpty()
   }
+  if (e.target.matches('.hamburger')){
+    const $rightBar = d.querySelector('.right-bar')
+    $rightBar.classList.add('show-right-bar')
+  }
+  if (e.target.matches('.close-icon')){
+    const $rightBar = d.querySelector('.right-bar')
+    $rightBar.classList.remove('show-right-bar')
+  }
+
 })
 $modalForm.addEventListener('submit', e => {
   e.preventDefault()
@@ -320,13 +323,15 @@ function filterRowsByNombre(searchText) {
 }
 
 //log out
-document.querySelector('.log-out').addEventListener('click',async()=>{
-  try {
-    await signOut(auth)
-    window.location.replace("../login/login.html")
-  } catch (error) {
-    console.log(error)
-  }
+document.querySelectorAll('.log-out').forEach(el => {
+  el.addEventListener('click',async()=>{
+try {
+  await signOut(auth)
+  window.location.replace("../login/login.html")
+} catch (error) {
+  console.log(error)
+}
+})
 })
 
 // abre el dropdown

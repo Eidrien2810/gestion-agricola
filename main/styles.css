@@ -32,6 +32,7 @@ body {
   -webkit-box-pack: justify;
       -ms-flex-pack: justify;
           justify-content: space-between;
+  align-items: center;
 
 }
 .search-bar {
@@ -40,6 +41,7 @@ body {
 table {
   width: 100%;
   border-collapse: collapse;
+  overflow-x: scroll;
 }
 th,
 td {
@@ -80,6 +82,9 @@ th {
   -webkit-box-align: center;
       -ms-flex-align: center;
           align-items: center;
+}
+.table {
+  overflow-x: scroll;
 }
 .modal-info {
   position: relative;
@@ -277,3 +282,68 @@ button, .pointer{
 
 /* Show the dropdown menu (use JS to add this class to the .dropdown-content container when the user clicks on the dropdown button) */
 .show {display:block;}
+
+span.hamburger {
+  display: none;
+  cursor: pointer;
+}
+.right-bar {
+  position: fixed;
+  inset: 0;
+  background-color: #4caf50;
+  color: white;
+  font-weight: bold;
+  padding: 2em;
+  font-size: 1.2em;
+  display: flex;
+  flex-direction: column; 
+  gap: 1em;
+  transform: translateX(100%);
+  transition: transform .5s ease-out;
+}
+.show-right-bar {
+  transform: translateX(0);
+}
+.close-icon {
+  cursor: pointer;
+  padding: .3em;
+  position: absolute;
+  right: 0;
+  top: 0;
+}
+.right-bar button {  
+  border: 1px solid white;
+  border-radius: 5px;
+  padding: .3em;
+  background-color: transparent;
+  font-size: 1.3em;
+  color: inherit;
+}
+.right-bar button:hover {
+  background-color: #0000004d;
+}
+.footer {
+  width: 100%;
+  background-color: #3b8b3d;
+  color: white;
+  margin-top: 2em;
+  padding: 2em;
+}
+@media screen and (max-width: 700px) {
+  .div--add-btn {
+    width: 100%;
+    display: flex;
+    flex-direction: column;
+    justify-content: center;
+    align-items: center;
+    gap: 1em;
+  }
+}
+@media screen and (max-width: 500px) {
+  .header .dropdown {
+    display: none;
+  }
+  span.hamburger {
+    display: block;
+  }
+}
