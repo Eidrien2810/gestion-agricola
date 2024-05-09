@@ -146,6 +146,11 @@ async function insertData(){
       })
     } catch (error) {
       console.log(error)
+      onAuthStateChanged(auth,user=>{
+        if(!user){
+          window.location.replace("../login/login.html")
+        }
+      })
     }
 
     reloadTable()
@@ -226,6 +231,11 @@ async function updateData(){
   
     } catch (error) {
       console.log(error)
+      onAuthStateChanged(auth,user=>{
+        if(!user){
+          window.location.replace("../login/login.html")
+        }
+      })
     }
 
     reloadTable()
@@ -254,15 +264,24 @@ async function deleteData(res){
         //se borre en la base de datos
 
         let newInv= inventory.filter(obj =>Array.isArray(obj)? obj[0]==id && obj[6]==userId: obj.id == id && obj.userId==userId)
+        console.log(newInv)
         newInv = Array.isArray(newInv)? newInv[0][7]:newInv[0].docId;
+        console.log(newInv)
         await deleteDoc(doc(db,'Inventory',newInv))
         inventory = newInventory
     } catch (error) {
       console.log(error)
+       await onAuthStateChanged(auth,user=>{
+        if(!user){
+          window.location.replace("../login/login.html")
+        }
+      })
     }
 
-
+    
     reloadTable()
+    closeModal()
+    isDataEmpty()
   }
 }
 function isDataEmpty(){
